@@ -1,0 +1,50 @@
+
+<div>
+  <ngx-charts-line-chart
+    [view]="view"
+    [scheme]="colorScheme"
+    [results]="multi"
+    [gradient]="gradient"
+    [xAxis]="showXAxis"
+    [yAxis]="showYAxis"
+    [legend]="showLegend"
+    [showXAxisLabel]="showXAxisLabel"
+    [showYAxisLabel]="showYAxisLabel"
+    [xAxisLabel]="xAxisLabel"
+    [yAxisLabel]="yAxisLabel"
+    [autoScale]="autoScale"
+    [timeline]="timeline"
+    (select)="onSelect($event)">
+    <ng-template #tooltipTemplate let-model="model">
+      <span class="tooltip-label">{{model.name | date:'short'}}</span>
+      <span class="tooltip-val" *ngIf="model.series === 'Temperature'">
+        <span *ngIf="!convertUnits">{{model.value | number:'1.0-2'}}°C</span>
+        <span *ngIf="convertUnits">{{(model.value * 9/5) + 32 | number:'1.0-2'}}°F</span>
+      </span>
+      <span class="tooltip-val" *ngIf="model.series === 'Humidity'">{{model.value}}%</span>
+    </ng-template>
+    <ng-template #seriesTooltipTemplate let-model="model">
+      <span class="tooltip-label" *ngIf="model && model[0] && model[0].name">{{model[0].name | date:'short'}}</span>
+      <div *ngFor="let modelElem of model">
+        <span class="tooltip-val" *ngIf="modelElem.series === 'Temperature'">
+            Temperature:
+          <span *ngIf="!convertUnits">{{modelElem.value | number:'1.0-2'}}°C</span>
+          <span *ngIf="convertUnits">{{(modelElem.value * 9/5) + 32 | number:'1.0-2'}}°F</span>
+        </span>
+        <span class="tooltip-val" *ngIf="modelElem.series === 'Humidity'">
+            Humidity:{{modelElem.value}}%</span>
+      </div>
+    </ng-template>
+  </ngx-charts-line-chart>
+</div>
+
+<div>
+  <button (click)="refreshData()">refresh all data</button>
+  <button (click)="fetchNew()">get any new data</button>
+</div>
+<div>
+<label class="switch">
+  <input type="checkbox" [(ngModel)]="convertUnits">
+  Convert to freedom units
+</label>
+</div>
