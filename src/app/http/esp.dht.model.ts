@@ -10,6 +10,20 @@ export class ESP_DHT_DATA_Model {
     time: number;
     temperature: number;
     humidity: number;
+
+    constructor(time, temperature, humidity) {
+        this.time = time;
+        this.temperature = temperature;
+        this.humidity = humidity;
+    }
+
+    static parse = (raw: any): ESP_DHT_DATA_Model => {
+        return new ESP_DHT_DATA_Model(
+            raw["@"],
+            raw["T"],
+            raw["H"]
+        );
+    }
 }
 
 export class ESPDHTModel {

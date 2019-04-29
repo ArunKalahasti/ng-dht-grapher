@@ -1,4 +1,3 @@
-
 <div>
   <ngx-charts-line-chart
     [view]="view"
@@ -39,12 +38,13 @@
 </div>
 
 <div>
-  <button (click)="refreshData()">refresh all data</button>
-  <button (click)="fetchNew()">get any new data</button>
+  <mat-slide-toggle  [(ngModel)]="convertUnits" color="secondary">°{{ convertUnits ? 'F' : 'C' }}</mat-slide-toggle>
 </div>
 <div>
-<label class="switch">
-  <input type="checkbox" [(ngModel)]="convertUnits">
-  Convert to freedom units
-</label>
+    <button mat-icon-button (click)="refreshData()" title="Refresh all data">
+      <mat-icon aria-label="Refresh all data">refresh</mat-icon>
+    </button>
+    <button mat-icon-button (click)="fetchNew()" title="Fetch new data">
+      <mat-icon aria-label="Get any new data">update</mat-icon>
+    </button>
 </div>

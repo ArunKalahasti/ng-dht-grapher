@@ -1,12 +1,11 @@
-import { Component, OnInit } from '@angular/core';
-import { EspDHTService } from './../http/esp.dht/esp.dht.service';
+import { Component, OnInit, Input } from '@angular/core';
+import { EspDHTService } from '../http/esp.dht.service';
 
 import { Observable } from 'rxjs';
 
-import { ESP_DHT_DATA_Model } from './../http/esp.dht/esp.dht.model';
+import { ESP_DHT_DATA_Model } from '../http/esp.dht.model';
 
 import * as d3 from 'd3';
-import { preserveWhitespacesDefault } from '@angular/compiler';
 
 @Component({
   selector: 'app-dht-graph',
@@ -15,6 +14,8 @@ import { preserveWhitespacesDefault } from '@angular/compiler';
   providers: [EspDHTService]
 })
 export class DhtGraphComponent implements OnInit {
+  @Input() server: string;
+
   dataObservable: Observable<ESP_DHT_DATA_Model[]>;
   options: any;
   data: any;
@@ -26,9 +27,9 @@ export class DhtGraphComponent implements OnInit {
   gradient = false;
   showLegend = true;
   showXAxisLabel = true;
-  xAxisLabel = 'Number';
+  xAxisLabel = 'Time';
   showYAxisLabel = true;
-  yAxisLabel = 'Color Value';
+  yAxisLabel = 'Sensor Value';
   timeline = true;
 
   convertUnits = false;
@@ -38,24 +39,14 @@ export class DhtGraphComponent implements OnInit {
   };
   multi: any[];
 
-  server = "192.168.0.110";
-
   constructor(
     private espDHTService: EspDHTService
   ) { }
 
   ngOnInit() {
     this.dataObservable = this.espDHTService.connect(this.server);
-    this.dataObservable.subscribe((data) => {
-      this.multi = this.formatData(data);
-      this.data = [
-        {
-          key: "Cumulative Return",
-          values: data
-        }
-      ];
-      console.log(this.data);
-    });
+    this.dataObservable.subscribe(this.handleData);
+    this.espDHTService.initialLoad(this.server);
     this.options = {
       chart: {
         type: 'lineChart',
@@ -102,6 +93,16 @@ export class DhtGraphComponent implements OnInit {
     ];
   }
 
+  handleData = (data) => {
+    this.multi = this.formatData(data);
+    this.data = [
+      {
+        key: "Cumulative Return",
+        values: data
+      }
+    ];
+  }
+
   formatData(data) {
     const tempData = [];
     const humidityData = [];
@@ -128,6 +129,6 @@ export class DhtGraphComponent implements OnInit {
   }
 
   fetchNew() {
-    this.espDHTService.fetchNew(this.server);
+    this.espDHTService.fetchUpdates(this.server);
   }
 }

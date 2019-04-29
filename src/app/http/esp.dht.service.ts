@@ -22,14 +22,14 @@ export class EspDHTService {
   connect(server: string) {
     const serverDataSubject = new Subject<ESP_DHT_DATA_Model[]>();
     this.serverDataSubjects[server] = serverDataSubject;
-    return this.http.options("http://" + server + "/")
+    this.http.get("http://" + server + "/")
     .pipe(
-      retry(3),
-      map((res:any) => {
+      retry(3)
+      )
+      .subscribe((res) => {
         console.log(res);
-        return res;
-      })
-    );
+      });
+      return serverDataSubject;
   }
 
   initialLoad(server: string) {
@@ -41,8 +41,8 @@ export class EspDHTService {
 
   }
 
-  fetchNew(server: string){
-    console.log('STARTING NEW DATA FETCH');
+  fetchUpdates(server: string){
+    console.log('STARTING DATA FETCH FOR UPDATES');
     this.getPage(server, this.currentPage).subscribe((start:ESPDHTModel) => {
       this.getNextPage(server, start);
     });
@@ -75,10 +75,7 @@ export class EspDHTService {
         model.meta = res.meta;
         model.data = [];
         res.data.forEach(element => {
-          const dataElement: ESP_DHT_DATA_Model = new ESP_DHT_DATA_Model();
-          dataElement.time = element["@"];
-          dataElement.temperature = element["T"];
-          dataElement.humidity = element["H"];
+          const dataElement = ESP_DHT_DATA_Model.parse(element);
           const found = this.data.some(el => el.time === dataElement.time);
           if (!found) {
             model.data.push(dataElement);
